@@ -288,7 +288,7 @@ printDeprecationWarning() {
 #   A helper function to determine if a segment should be
 #   joined or promoted to a full one.
 ##
-# args
+# @args
 #   $1 integer The array index of the current segment.
 #   $2 integer The array index of the last printed segment.
 #   $3 array The array of segments of the left or right prompt.
