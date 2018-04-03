@@ -239,6 +239,7 @@ serializeSegment() {
   local ALIGNMENT="${3}"
   local INDEX="${4}"
   local JOINED="${5}"
+  local CONDITION="${10}"
 
   local STATEFUL_NAME="${(U)NAME#prompt_}"
   [[ -n "${STATE}" ]] && STATEFUL_NAME="${STATEFUL_NAME}_${(U)STATE}"
@@ -275,34 +276,8 @@ serializeSegment() {
       fi
     fi
   fi
-  # Conditions have three layers:
-  # 1. All segments should not print
-  #    a segment, if they provide no
-  #    content (default condition).
-  # 2. All segments could define a
-  #    default condition on their
-  #    own, overriding the previous
-  #    one.
-  # 3. Users could set a condition
-  #    for each segment. This is
-  #    the trump card, and has
-  #    highest precedence.
-  local CONDITION
-  local SEGMENT_CONDITION="P9K_${STATEFUL_NAME}_CONDITION"
-  if defined "${SEGMENT_CONDITION}"; then
-    CONDITION="${(P)SEGMENT_CONDITION}"
-  elif [[ -n "${10}" ]]; then
-    CONDITION="${10}"
-  else
-    CONDITION='[[ -n "${8}" ]]'
-  fi
-  # Precompile condition.
-  eval "${CONDITION}" && CONDITION=true || CONDITION=false
 
-#  if ! ${CONDITION}; then
-#    continue
-#  fi
-  [[ $CONDITION == true ]] && "$3PromptSegment" "${NAME}" "${INDEX}" "${BACKGROUND}" "${FOREGROUND}" "${BOLD}" "${CONTENT}" "${VISUAL_IDENTIFIER}"
+  segmentShouldBePrinted "${STATEFUL_NAME}" "${CONDITION}" "${CONTENT}" && "${ALIGNMENT}PromptSegment" "${NAME}" "${INDEX}" "${BACKGROUND}" "${FOREGROUND}" "${BOLD}" "${CONTENT}" "${VISUAL_IDENTIFIER}"
 }
 
 ################################################################

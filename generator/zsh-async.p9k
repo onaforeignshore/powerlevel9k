@@ -382,6 +382,14 @@ p9kSerializeSegment() {
       fi
     fi
   fi
+
+  # Pre-Compile condition
+  if segmentShouldBePrinted "${STATEFUL_NAME}" "${CONDITION}" "${CONTENT}"; then
+    CONDITION=true
+  else
+    CONDITION=false
+  fi
+
   # Return the data to the main process, delimited with "·|·"
   echo "$STATEFUL_NAME·|·$ALIGNMENT·|·$INDEX·|·$JOINED·|·$BACKGROUND·|·$FOREGROUND·|·$BOLD·|·$CONTENT·|·$VISUAL_IDENTIFIER·|·$CONDITION"
 }
