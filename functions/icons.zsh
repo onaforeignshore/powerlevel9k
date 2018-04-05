@@ -18,7 +18,7 @@
 #   `compatible`. This shows all icons in regular symbols.
 ##
 
-typeset -gAH icons
+typeset -gAH _p9k_icons
 
 ################################################################
 # @description
@@ -45,25 +45,24 @@ typeset -gAH icons
 ##
 registerIcon() {
   local map
-  case $P9K_MODE in
+  case "${P9K_MODE}" in
   	'flat'|'awesome-patched')                   map=$3 ;;
   	'awesome-fontconfig')                       map=$4 ;;
   	'awesome-mapped-fontconfig')                map=$5 ;;
   	'nerdfont-complete'|'nerdfont-fontconfig')  map=$6 ;;
   	*)                                          map=$2 ;;
   esac
-	icons[$1]=${map}
+	_p9k_icons[${1}]="${map}"
 }
 
 # Initialize the icon list according to the user's `P9K_MODE`.
-typeset -gAH icons
-case $P9K_MODE in
+case "${P9K_MODE}" in
   'flat'|'awesome-patched')
     # Awesome-Patched Font required! See:
     # https://github.com/gabrielelana/awesome-terminal-fonts/tree/patching-strategy/patched
     # Set the right locale to protect special characters
     local LC_ALL="" LC_CTYPE="en_US.UTF-8"
-    icons=(
+    _p9k_icons=(
       LEFT_SEGMENT_SEPARATOR         $'\uE0B0'              # 
       RIGHT_SEGMENT_SEPARATOR        $'\uE0B2'              # 
       LEFT_SEGMENT_END_SEPARATOR     ' '                    # Whitespace
@@ -79,7 +78,7 @@ case $P9K_MODE in
     # https://github.com/gabrielelana/awesome-terminal-fonts
     # Set the right locale to protect special characters
     local LC_ALL="" LC_CTYPE="en_US.UTF-8"
-    icons=(
+    _p9k_icons=(
       LEFT_SEGMENT_SEPARATOR         $'\uE0B0'              # 
       RIGHT_SEGMENT_SEPARATOR        $'\uE0B2'              # 
       LEFT_SEGMENT_END_SEPARATOR     ' '                    # Whitespace
@@ -104,7 +103,7 @@ case $P9K_MODE in
         Or use a different Powerlevel9k font configuration.";
     fi
 
-    icons=(
+    _p9k_icons=(
       LEFT_SEGMENT_SEPARATOR         $'\uE0B0'              # 
       RIGHT_SEGMENT_SEPARATOR        $'\uE0B2'              # 
       LEFT_SEGMENT_END_SEPARATOR     ' '                    # Whitespace
@@ -121,7 +120,7 @@ case $P9K_MODE in
     # http://nerdfonts.com/#cheat-sheet
     # Set the right locale to protect special characters
     local LC_ALL="" LC_CTYPE="en_US.UTF-8"
-    icons=(
+    _p9k_icons=(
       LEFT_SEGMENT_SEPARATOR         $'\uE0B0'              # 
       RIGHT_SEGMENT_SEPARATOR        $'\uE0B2'              # 
       LEFT_SEGMENT_END_SEPARATOR     ' '                    # Whitespace
@@ -137,7 +136,7 @@ case $P9K_MODE in
     # See https://github.com/Lokaltog/powerline-fonts
     # Set the right locale to protect special characters
     local LC_ALL="" LC_CTYPE="en_US.UTF-8"
-    icons=(
+    _p9k_icons=(
       LEFT_SEGMENT_SEPARATOR         $'\uE0B0'              # 
       RIGHT_SEGMENT_SEPARATOR        $'\uE0B2'              # 
       LEFT_SEGMENT_END_SEPARATOR     ' '                    # Whitespace
@@ -151,25 +150,25 @@ case $P9K_MODE in
 esac
 
 # Override the above icon settings with any user-defined variables.
-case $P9K_MODE in
+case "${P9K_MODE}" in
 	'flat')
 		# Set the right locale to protect special characters
 		local LC_ALL="" LC_CTYPE="en_US.UTF-8"
-		icons[LEFT_SEGMENT_SEPARATOR]=''
-		icons[RIGHT_SEGMENT_SEPARATOR]=''
-		icons[LEFT_SUBSEGMENT_SEPARATOR]='|'
-		icons[RIGHT_SUBSEGMENT_SEPARATOR]='|'
+		_p9k_icons[LEFT_SEGMENT_SEPARATOR]=''
+		_p9k_icons[RIGHT_SEGMENT_SEPARATOR]=''
+		_p9k_icons[LEFT_SUBSEGMENT_SEPARATOR]='|'
+		_p9k_icons[RIGHT_SUBSEGMENT_SEPARATOR]='|'
 	;;
 	'compatible')
 		# Set the right locale to protect special characters
 		local LC_ALL="" LC_CTYPE="en_US.UTF-8"
-		icons[LEFT_SEGMENT_SEPARATOR]=$'\u2B80'                 # ⮀
-		icons[RIGHT_SEGMENT_SEPARATOR]=$'\u2B82'                # ⮂
+		_p9k_icons[LEFT_SEGMENT_SEPARATOR]=$'\u2B80'                 # ⮀
+		_p9k_icons[RIGHT_SEGMENT_SEPARATOR]=$'\u2B82'                # ⮂
 	;;
 esac
 
 # Hide branch icon if user wants it hidden
-[[ "$P9K_HIDE_BRANCH_ICON" == true ]] && icons[VCS_BRANCH_ICON]=''
+[[ "$P9K_HIDE_BRANCH_ICON" == true ]] && _p9k_icons[VCS_BRANCH_ICON]=''
 
 ################################################################
 # @description
@@ -180,12 +179,12 @@ esac
 #   $1 string Name of icon
 ##
 function printIcon() {
-	local icon_name=$1
-	local ICON_USER_VARIABLE=P9K_${icon_name}
-	if defined "$ICON_USER_VARIABLE"; then
+	local icon_name="${1}"
+	local ICON_USER_VARIABLE="P9K_${icon_name}"
+	if defined "${ICON_USER_VARIABLE}"; then
 		echo -n "${(P)ICON_USER_VARIABLE}"
 	else
-		echo -n "${icons[$icon_name]}"
+		echo -n "${_p9k_icons[$icon_name]}"
 	fi
 }
 
@@ -195,11 +194,11 @@ function printIcon() {
 #                 overrides into account.
 get_icon_names() {
 	# Iterate over a ordered list of keys of the icons array
-	for key in ${(@kon)icons}; do
+	for key in "${(@kon)_p9k_icons}"; do
 		echo -n "P9K_$key: "
 		if [[ "${1}" == "original" ]]; then
 			# print the original icons as they are defined in the array above
-			echo "${icons[$key]}"
+			echo "${_p9k_icons[$key]}"
 		else
 			# print the icons as they are configured by the user
 			echo "$(printIcon "$key")"
