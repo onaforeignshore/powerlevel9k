@@ -92,28 +92,28 @@ updateEnvironmentVars() {
   local envVar var varName origVar newVar newVal
   local oldVarsFound=false
   for envVar in $(declare); do
-    if [[ $envVar =~ "POWERLEVEL9K_" ]]; then
+    if [[ "${envVar}" =~ "POWERLEVEL9K_" ]]; then
       oldVarsFound=true
-      var=$(declare -p ${envVar})
-      varName=${${var##*POWERLEVEL9K_}%=*}
+      var="$(declare -p ${envVar})"
+      varName="${${var##*POWERLEVEL9K_}%=*}"
       origVar="POWERLEVEL9K_${varName}"
       newVar="P9K_${varName}"
-      if [[ ${var[13]} == "a" ]]; then # array variable
-        newVal=${${var##*\(}%\)*}
-        case ${(U)varName} in
+      if [[ "${var[13]}" == "a" ]]; then # array variable
+        newVal="${${var##*\(}%\)*}"
+        case "${(U)varName}" in
           BATTERY_LEVEL_BACKGROUND) typeset -g -a P9K_BATTERY_LEVEL_BACKGROUND=(${(s: :)newVal});;
           BATTERY_STAGES)
-            local newVal=${${(P)origVar}//\'/}
+            local newVal="${${(P)origVar}//\'/}"
             typeset -g -a P9K_BATTERY_STAGES=( ${(s: :)newVal} )
           ;;
           LEFT_PROMPT_ELEMENTS)     typeset -g -a P9K_LEFT_PROMPT_ELEMENTS=(${(s: :)newVal});;
           RIGHT_PROMPT_ELEMENTS)    typeset -g -a P9K_RIGHT_PROMPT_ELEMENTS=(${(s: :)newVal});;
         esac
       else
-        newVal=${(P)origVar}
+        newVal="${(P)origVar}"
         typeset -g $newVar=$newVal
       fi
-      unset $origVar
+      unset "${origVar}"
     fi
   done
   [[ $P9K_IGNORE_VAR_WARNING == true ]] && oldVarsFound=false # disable warning if user sets P9K_IGNORE_VAR_WARNING to true.

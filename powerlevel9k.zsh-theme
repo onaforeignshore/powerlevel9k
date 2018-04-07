@@ -94,10 +94,10 @@ esac
 ################################################################
 
 # load only the segments that are being used!
-local segmentName
+local segment
 typeset -gU loadedSegments
-for segment in $p9kDirectory/segments/*.p9k; do
-  segmentName=${${segment##*/}%.p9k}
+for segment in ${p9kDirectory}/segments/*.p9k; do
+  local segmentName="${${segment##*/}%.p9k}"
   if segmentInUse "$segmentName"; then
     source "${segment}" 2>&1
     loadedSegments+=("${segmentName}")
