@@ -260,8 +260,14 @@ P9K_PROMPT_ELEMENTS=("${P9K_LEFT_PROMPT_ELEMENTS[@]}" "${P9K_RIGHT_PROMPT_ELEMEN
 #   $1 string The segment to be tested.
 ##
 segmentInUse() {
-  local key=$1
-  [[ -n "${P9K_PROMPT_ELEMENTS[(r)$key]}" ]] && return 0 || return 1
+  local key="${1}"
+  [[ -n "${P9K_PROMPT_ELEMENTS[(r)$key]}" ]] && return 0
+  # Check for joined segments
+  key="${key}_joined"
+  [[ -n "${P9K_PROMPT_ELEMENTS[(r)$key]}" ]] && return 0
+
+  # Default: not found
+  return 1
 }
 
 ###############################################################
