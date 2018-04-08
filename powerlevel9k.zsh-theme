@@ -104,6 +104,18 @@ for segment in ${p9kDirectory}/segments/*.p9k; do
   fi
 done
 
+# Load all custom segments
+function loadSegmentsFromPath() {
+  local segmentPath=$1 # Glob, so no wrap in quotes
+  local segment
+  for segment in $segmentPath; do
+    source "${segment}" 2>&1
+  done
+}
+
+loadSegmentsFromPath "~/.p9k/segments/*.p9k"
+loadSegmentsFromPath "${p9kDirectory}/segments/custom/*.p9k"
+
 # cleanup temporary variable - not done because it is used for autoloading segments
 #unset p9kDirectory
 
