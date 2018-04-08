@@ -321,7 +321,7 @@ p9kAsyncCallback() {
 #   $9 string Visual identifier - Segment icon
 #   $10 string Condition - The condition, if the segment should be printed (gets evaluated)
 ##
-p9kSerializeSegment() {
+serializeSegment() {
   local NAME="${(U)1}"
   local STATE="${(U)2}"
   local ALIGNMENT="${3}"
@@ -391,20 +391,7 @@ p9kSerializeSegment() {
   fi
 
   # Return the data to the main process, delimited with "·|·"
-  echo "$STATEFUL_NAME·|·$ALIGNMENT·|·$INDEX·|·$JOINED·|·$BACKGROUND·|·$FOREGROUND·|·$BOLD·|·$CONTENT·|·$VISUAL_IDENTIFIER·|·$CONDITION"
-}
-
-###############################################################
-# @description
-#   This function is a wrapper function that starts off the async
-#   process and passes the parameters from the segment code to the
-#   subshells.
-##
-# @args
-#   $@ misc The parameters passed from the segment code
-##
-serializeSegment() {
-  (async_job "p9k" "p9kSerializeSegment" "${@}")
+  echo "${STATEFUL_NAME}·|·${ALIGNMENT}·|·${INDEX}·|·${JOINED}·|·${BACKGROUND}·|·${FOREGROUND}·|·${BOLD}·|·${CONTENT}·|·${VISUAL_IDENTIFIER}·|·${CONDITION}"
 }
 
 ################################################################
@@ -426,7 +413,7 @@ prompt_custom() {
   local segment_content="$(eval ${(P)command})"
 
   if [[ -n $segment_content ]]; then
-    serializeSegment "${4:u}" "" "$1" $2 $3 $DEFAULT_COLOR_INVERTED $DEFAULT_COLOR "$segment_content"
+    serializeSegment "${4:u}" "" "${1}" "${2}" "${3}" "${DEFAULT_COLOR_INVERTED}" "${DEFAULT_COLOR}" "${segment_content}"
   fi
 }
 
@@ -450,12 +437,12 @@ buildLeftPrompt() {
     # Check if it is a custom command, otherwise interpet it as
     # a prompt.
     if [[ $element[0,7] =~ "custom_" ]]; then
-      "prompt_custom" "left" "${index}" "${joined}" "${element[8,-1]}" &!
+      async_job "p9k" "prompt_custom" "left" "${index}" "${joined}" "${element[8,-1]}"
     else
       # Could we display placeholders?
       # -> At most it could be static ones, but
       # e.g. states are the result of calculation..
-      "prompt_$element" "left" "${index}" "${joined}" &!
+      async_job "p9k" "prompt_${element}" "left" "${index}" "${joined}"
     fi
     index=$((index + 1))
   done
@@ -481,9 +468,9 @@ buildRightPrompt() {
     # Check if it is a custom command, otherwise interpet it as
     # a prompt.
     if [[ $element[0,7] =~ "custom_" ]]; then
-      "prompt_custom" "right" "$index" $joined "${element[8,-1]}" &!
+      async_job "p9k" "prompt_custom" "right" "${index}" "${joined}" "${element[8,-1]}"
     else
-      "prompt_$element" "right" "$index" "${joined}" &!
+      async_job "p9k" "prompt_${element}" "right" "${index}" "${joined}"
     fi
     index=$((index + 1))
   done
